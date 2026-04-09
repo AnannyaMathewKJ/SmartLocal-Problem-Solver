@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Smart Local{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+    .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    
+    /* Header Style */
+    .dashboard-header { padding: 40px 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 30px; }
+    .dashboard-header h1 { color: #0f172a; font-size: 28px; margin-bottom: 8px; }
+    .dashboard-header p { color: #64748b; font-size: 16px; }
+
+    /* Grid Layout */
+    .dashboard-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+        gap: 20px; 
+        padding-bottom: 40px; 
+    }
+
+    /* Card Styling */
+    .category-card { 
+        background: white; 
+        padding: 30px 20px; 
+        border-radius: 15px; 
+        text-align: center; 
+        transition: all 0.3s ease; 
+        cursor: pointer; 
+        border: 1px solid #e2e8f0; 
+        text-decoration: none; 
+        color: #1e293b; 
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .category-card:hover { 
+        transform: translateY(-5px); 
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); 
+        border-color: #38bdf8;
+    }
+
+    .category-card i { font-size: 36px; }
+    .category-card h3 { font-size: 18px; font-weight: 600; margin: 0; }
+    
+    /* Category Colors matching your logic */
+    .air { color: #06b6d4; } 
+    .waste { color: #16a34a; } 
+    .water { color: #0284c7; } 
+    .safety { color: #dc2626; } 
+    .lost { color: #8b5cf6; }
+
+    /* Recent Reports Section */
+    .reports-section { 
+        background: white; 
+        padding: 25px; 
+        border-radius: 15px; 
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
+        border: 1px solid #e2e8f0;
+    }
+
+    .report-item { 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between; 
+        padding: 15px 0; 
+        border-bottom: 1px solid #f1f5f9; 
+    }
+
+    .report-item:last-child { border-bottom: none; }
+
+    .report-info { display: flex; align-items: center; gap: 15px; }
+
+    .report-img { 
+        width: 55px; 
+        height: 55px; 
+        border-radius: 10px; 
+        object-fit: cover; 
+        background: #f1f5f9; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Status Badges */
+    .status-badge { 
+        padding: 6px 14px; 
+        border-radius: 20px; 
+        font-size: 11px; 
+        font-weight: 700; 
+        text-transform: uppercase; 
+        letter-spacing: 0.5px;
+    }
+    .pending { background: #fef3c7; color: #92400e; }
+    .resolved { background: #dcfce7; color: #166534; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <header class="dashboard-header">
+        <h1>Welcome back, {{ user.email }}!</h1>
+        <p>Monitor your community and track your reported issues in one place.</p>
+    </header>
+
+    <div class="dashboard-grid">
+        <a href="{% url 'air' %}" class="category-card">
+            <i class="fa fa-wind air"></i>
+            <h3>Air Pollution</h3>
+        </a>
+        <a href="{% url 'waste' %}" class="category-card">
+            <i class="fa fa-trash-alt waste"></i>
+            <h3>Waste Disposal</h3>
+        </a>
+        <a href="{% url 'water' %}" class="category-card">
+            <i class="fa fa-faucet-drip water"></i>
+            <h3>Water Logging</h3>
+        </a>
+        <a href="{% url 'safety' %}" class="category-card">
+            <i class="fa fa-shield-alt safety"></i>
+            <h3>Public Safety</h3>
+        </a>
+        <a href="{% url 'lost' %}" class="category-card">
+            <i class="fa fa-search lost"></i>
+            <h3>Lost & Found</h3>
+        </a>
+    </div>
+
+    <div class="reports-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="font-size: 20px; margin: 0;">Your Recent Reports</h2>
+            <a href="{% url 'complaint' %}" style="color: #38bdf8; text-decoration: none; font-size: 14px; font-weight: 600;">+ File New Complaint</a>
+        </div>
+        
+        {% if reports %}
+            {% for report in reports %}
+            <div class="report-item">
+                <div class="report-info">
+                    <div class="report-img">
+                        {% if report.image %}
+                            <img src="{{ report.image.url }}" class="report-img" alt="Evidence">
+                        {% else %}
+                            <i class="fa fa-image" style="color:#cbd5e1; font-size: 20px;"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h4 style="margin: 0; color: #1e293b;">{{ report.get_category_display }}</h4>
+                        <small style="color: #64748b;">Submitted on {{ report.created_at|date:"M d, Y" }}</small>
+                    </div>
+                </div>
+                <span class="status-badge {{ report.status|lower }}">{{ report.status|upper }}</span>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 40px 20px;">
+                <i class="fa fa-clipboard-list" style="font-size: 40px; color: #e2e8f0; margin-bottom: 15px; display: block;"></i>
+                <p style="color: #94a3b8; margin: 0;">You haven't filed any reports yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

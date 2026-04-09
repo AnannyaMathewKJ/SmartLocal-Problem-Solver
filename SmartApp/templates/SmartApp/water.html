@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Water Logging & Leakage - Smart Local{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { background: #f3f4f6; }
+    
+    /* WATER BLUE HEADER */
+    .header-banner {
+        background: #0284c7; /* Water Blue */
+        color: #fff;
+        padding: 45px 20px;
+        text-align: center;
+    }
+
+    .container-main {
+        max-width: 1100px;
+        margin: -40px auto 40px;
+        padding: 0 15px;
+    }
+
+    .card-shadow {
+        background: #fff;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+
+    .form-section { padding: 30px; }
+    .form-group { margin-bottom: 18px; }
+    label { font-weight: bold; margin-bottom: 6px; display: block; color: #1e293b; }
+    
+    input, select, textarea {
+        width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1;
+    }
+
+    .row-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .upload-area {
+        border: 2px dashed #bae6fd;
+        padding: 25px;
+        text-align: center;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .upload-area:hover { border-color: #0284c7; background: #f0f9ff; }
+    #preview { max-width: 150px; margin-top: 10px; border-radius: 8px; display: none; }
+
+    .gps-btn {
+        background: #0ea5e9;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        font-weight: 700;
+        padding: 12px;
+        border-radius: 8px;
+        transition: 0.2s;
+    }
+    .gps-btn:hover { background: #0284c7; }
+
+    .map-box {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+    }
+
+    .submit-btn {
+        background: #0284c7;
+        color: #fff;
+        font-size: 18px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        padding: 14px;
+        border-radius: 30px;
+        transition: 0.3s;
+    }
+    .submit-btn:hover { background: #0369a1; transform: scale(1.02); }
+
+    /* RECENT REPORTS */
+    .recent-reports { background: #f8fafc; padding: 25px; border-top: 1px solid #e5e7eb; }
+    
+    .report-item {
+        background: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        margin-bottom: 12px;
+        border-left: 5px solid #0ea5e9; 
+    }
+
+    @media(max-width: 768px) { .row-layout { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="header-banner">
+    <h1>💧 Water & Drainage Issues</h1>
+    <p>Report water logging, pipe leakages, or open drains</p>
+</header>
+
+<main class="container-main">
+    <div class="card-shadow">
+        <section class="form-section">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row-layout">
+                    <div class="form-group">
+                        <label>Issue Type *</label>
+                        <select name="category" required>
+                            <option value="water_logging">Road Water Logging</option>
+                            <option value="pipe_leakage">Main Pipe Leakage</option>
+                            <option value="drain_block">Blocked Drainage</option>
+                            <option value="no_supply">No Water Supply</option>
+                            <option value="dirty_water">Contaminated/Dirty Water</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Urgency Level</label>
+                        <div style="display: flex; gap: 15px; padding-top: 10px;">
+                            <label style="font-weight: normal;"><input type="radio" name="urgency" value="low"> Low</label>
+                            <label style="font-weight: normal;"><input type="radio" name="urgency" value="medium" checked> Medium</label>
+                            <label style="font-weight: normal;"><input type="radio" name="urgency" value="high"> High</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload Photo of the Area</label>
+                    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                        <i class="fa fa-faucet-drip" style="font-size: 24px; color: #0284c7;"></i>
+                        <p>Click to upload evidence</p>
+                        <input type="file" name="evidence" id="fileInput" hidden accept="image/*" onchange="previewImage(event)">
+                        <img id="preview">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description & Address</label>
+                    <textarea name="description" rows="3" placeholder="Describe the severity and location landmarks..." required></textarea>
+                </div>
+
+                <div class="row-layout">
+                    <button type="button" class="gps-btn" onclick="getLocation()">
+                        <i class="fa fa-location-arrow"></i> Fetch GPS Location
+                    </button>
+                    <div class="map-box" id="map-area">
+                        <p id="location-status">Waiting for location...</p>
+                        <input type="hidden" name="latitude" id="lat">
+                        <input type="hidden" name="longitude" id="lng">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Water Report</button>
+            </form>
+        </section>
+
+        <div class="recent-reports">
+            <h2 style="font-size: 18px; margin-bottom: 15px;">Recently Reported Issues</h2>
+            <div id="waterList">
+                {% for report in recent_reports %}
+                <div class="report-item">
+                    <div>
+                        <strong>{{ report.get_category_display }}</strong>
+                        <p style="font-size: 13px; color: #64748b;">Reported: {{ report.created_at|date:"M d, Y" }}</p>
+                    </div>
+                    <span style="font-size: 11px; font-weight: bold; background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 20px;">
+                        {{ report.status|upper }}
+                    </span>
+                </div>
+                {% empty %}
+                <p style="text-align: center; color: #94a3b8; font-size: 14px;">No recent water issues in your area.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const output = document.getElementById('preview');
+            output.src = reader.result;
+            output.style.display = 'block';
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function getLocation() {
+        const status = document.getElementById("location-status");
+        if (navigator.geolocation) {
+            status.innerHTML = "Fetching coordinates...";
+            navigator.geolocation.getCurrentPosition(function(position) {
+                document.getElementById("lat").value = position.coords.latitude;
+                document.getElementById("lng").value = position.coords.longitude;
+                status.innerHTML = "✅ Location Tagged: " + position.coords.latitude.toFixed(4) + ", " + position.coords.longitude.toFixed(4);
+                status.style.color = "#0284c7";
+            }, function() {
+                status.innerHTML = "❌ GPS Access Denied";
+            });
+        }
+    }
+</script>
+{% endblock %}

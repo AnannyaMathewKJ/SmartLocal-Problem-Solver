@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | SmartLocal</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Using a gradient that mimics the blurred colors in your image */
+            background: linear-gradient(135deg, #1e3a44 0%, #2d5a61 30%, #5b8c85 60%, #a2c1b4 100%);
+            background-attachment: fixed;
+        }
+
+        .login-card {
+            /* Glassmorphism effect: White with transparency and blur */
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            
+            padding: 3rem 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 440px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        h2 {
+            color: #2c3e50;
+            font-size: 32px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #5d6d7e;
+            margin-bottom: 2rem;
+            font-size: 15px;
+        }
+
+        /* Django Form Styling */
+        form p {
+            text-align: left;
+            margin-bottom: 1.5rem;
+            color: #34495e;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            margin-top: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #d5dbdb;
+            border-radius: 12px; /* Smooth rounded corners like the image */
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #5b8c85;
+            box-shadow: 0 0 0 3px rgba(91, 140, 133, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #34495e; /* Dark slate blue like the button in the image */
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #2c3e50;
+            transform: translateY(-1px);
+        }
+
+        .error-container {
+            background-color: #fdedec;
+            border: 1px solid #fadbd8;
+            color: #a93226;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 14px;
+        }
+
+        .signup-text {
+            margin-top: 2rem;
+            font-size: 14px;
+            color: #5d6d7e;
+        }
+
+        .signup-text a {
+            color: #2d5a61;
+            text-decoration: none;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>Smart Local</h2>
+        <p class="subtitle">Connecting you with your community</p>
+        
+        {% if form.errors %}
+            <div class="error-container">
+                Your username and password didn't match.
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            
+
+            <button type="submit">Login</button>
+        </form>
+        <p class="signup-text">Don't have an account? <a href="{% url 'signup' %}">Sign up</a></p>
+    </div>
+</body>
+</html>

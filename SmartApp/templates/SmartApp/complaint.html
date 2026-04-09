@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Submit Complaint - Smart Local{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { background: #eef2f5; }
+    .complaint-section {
+        min-height: 80vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 20px;
+    }
+    .form-container {
+        background: #fff;
+        width: 100%;
+        max-width: 500px;
+        padding: 35px;
+        border-radius: 14px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+    h1 { text-align: center; color: #1e88e5; margin-bottom: 8px; font-size: 24px; }
+    .subtitle { text-align: center; font-size: 14px; margin-bottom: 25px; color: #555; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; color: #333; }
+    input, select, textarea {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #1e88e5;
+    }
+    .submit-btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        background: #1e88e5;
+        color: white;
+        font-size: 16px;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+    .submit-btn:hover { background: #1565c0; }
+    .alert { padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center; font-size: 14px; }
+    .alert-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="complaint-section">
+    <div class="form-container">
+        <h1>📢 Complaint Box</h1>
+        <p class="subtitle">Report local issues to your community dashboard.</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success">✅ {{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" action="{% url 'complaint' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="category">Issue Category</label>
+                <select name="category" id="category" required>
+                    <option value="">Select issue</option>
+                    <option value="air">Air Pollution</option>
+                    <option value="waste">Waste Disposal</option>
+                    <option value="water">Water Logging</option>
+                    <option value="lost">Lost Item</option>
+                    <option value="safety">Safety Alert</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location / Area</label>
+                <input type="text" name="location" id="location" placeholder="Enter your locality" required />
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority</label>
+                <select name="priority" id="priority" required>
+                    <option value="">Select priority</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="emergency">Emergency</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Complaint Description</label>
+                <textarea name="description" id="description" rows="5" placeholder="Describe the issue clearly..." required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Complaint</button>
+        </form>
+    </div>
+</section>
+{% endblock %}
